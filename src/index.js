@@ -20,7 +20,17 @@ app.use("/baremux/", express.static(baremuxPath));
 // Error for everything else
 app.use((req, res) => {
 	res.status(404);
+    // 1. FIRST, tell Express where to find CSS, JS, and image assets natively
+// This checks the "public" or "static" paths so styles load seamlessly
+app.use(express.static(new URL('../public/', import.meta.url).pathname));
+
+// 2. SECOND, register Ultraviolet's internal service paths
+app.use('/uv/', express.static(new URL('../public/uv/', import.meta.url).pathname));
+
+// 3. LAST, if it isn't a direct style asset, fall back to the main layout
+app.get('*', (req, res) => {
     res.sendFile(new URL('../public/index.html', import.meta.url).pathname);
+});
 });
 
 const server = createServer();
